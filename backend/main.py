@@ -10,7 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from backend.api import chat, documents, health, research, study, viva
+from backend.api import chat, dashboard, documents, evaluation, health, prompt_lab, research, study, viva
 from backend.config import get_settings
 from backend.database import init_db
 from backend.errors import AppError
@@ -43,6 +43,9 @@ app.include_router(chat.router)
 app.include_router(study.router)
 app.include_router(research.router)
 app.include_router(viva.router)
+app.include_router(dashboard.router)
+app.include_router(evaluation.router)
+app.include_router(prompt_lab.router)
 
 
 @app.exception_handler(AppError)
