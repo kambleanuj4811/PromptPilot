@@ -9,6 +9,8 @@ import StudyMode from './pages/StudyMode'
 import DocumentQA from './pages/DocumentQA'
 import ResearchMode from './pages/ResearchMode'
 import VivaMode from './pages/VivaMode'
+import PromptEvaluation from './pages/PromptEvaluation'
+import PromptLab from './pages/PromptLab'
 
 export default function App() {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -26,8 +28,8 @@ export default function App() {
             <Route path="/research" element={<ResearchMode />} />
             <Route path="/viva" element={<VivaMode />} />
             <Route path="/qa" element={<DocumentQA />} />
-            <Route path="/evaluation" element={<ComingSoon title="Prompt Evaluation" needs="the evaluation backend (Phase 5)" />} />
-            <Route path="/lab" element={<ComingSoon title="Prompt Engineering Lab" needs="the Prompt Lab backend (Phase 5)" />} />
+            <Route path="/evaluation" element={<PromptEvaluation />} />
+            <Route path="/lab" element={<PromptLab />} />
             <Route path="*" element={<ComingSoon title="This page" needs="a valid address" />} />
           </Routes>
         </main>
