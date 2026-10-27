@@ -1,0 +1,25 @@
+# Secrets
+.env
+*.env.local
+
+# Python
+venv/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Local data
+backend/data/*
+backend/uploads/*
+!backend/data/.gitkeep
+!backend/uploads/.gitkeep
+
+# Node
+node_modules/
+frontend/dist/
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
