@@ -1,3 +1,4 @@
+
 """ChromaDB storage and search. Knows nothing about prompts or the AI model."""
 from dataclasses import dataclass
 
@@ -20,48 +21,121 @@ class RetrievalService:
             name=collection_name, metadata={"hnsw:space": "cosine"}
         )
 
-    def add_chunks(self, document_id: str, filename: str, chunks: list[Chunk],
-                   embeddings: list[list[float]]) -> None:
+    def add_chunks(
+        self,
+        document_id: str,
+        filename: str,
+        chunks: list[Chunk],
+        embeddings: list[list[float]],
+    ) -> None:
         if not chunks:
             return
+
         self._collection.add(
             ids=[f"{document_id}:{c.index}" for c in chunks],
             documents=[c.text for c in chunks],
             embeddings=embeddings,
             metadatas=[
-                {"document_id": document_id, "filename": filename,
-                 "page_number": c.page_number, "chunk_index": c.index}
+                {
+                    "document_id": document_id,
+                    "filename": filename,
+                    "page_number": c.page_number,
+                    "chunk_index": c.index,
+                }
                 for c in chunks
             ],
         )
 
-    def search(self, query_embedding: list[float], document_ids: list[str] | None = None,
-               top_k: int = 5) -> list[RetrievedChunk]:
+    def search(
+        self,
+        query_embedding: list[float],
+        document_ids: list[str] | None = None,
+        top_k: int = 5,
+    ) -> list[RetrievedChunk]:
         """document_ids=None searches everything; an empty list searches nothing."""
         if document_ids is not None and not document_ids:
             return []
+
         total = self._collection.count()
         if total == 0:
             return []
+
         where = None
         if document_ids is not None:
-            where = ({"document_id": document_ids[0]} if len(document_ids) == 1
-                     else {"document_id": {"$in": document_ids}})
+            where = (
+                {"document_id": document_ids[0]}
+                if len(document_ids) == 1
+                else {"document_id": {"$in": document_ids}}
+            )
+
         result = self._collection.query(
-            query_embeddings=[query_embedding], n_results=min(top_k, total), where=where
+            query_embeddings=[query_embedding],
+            n_results=min(top_k, total),
+            where=where,
         )
+
         hits = []
-        for text, meta, dist in zip(result["documents"][0], result["metadatas"][0],
-                                    result["distances"][0]):
-            hits.append(RetrievedChunk(
-                text=text, document_id=meta["document_id"], filename=meta["filename"],
-                page_number=meta["page_number"], chunk_index=meta["chunk_index"],
-                score=1.0 - dist,
-            ))
+        for text, meta, dist in zip(
+            result["documents"][0],
+            result["metadatas"][0],
+            result["distances"][0],
+        ):
+            hits.append(
+                RetrievedChunk(
+                    text=text,
+                    document_id=meta["document_id"],
+                    filename=meta["filename"],
+                    page_number=meta["page_number"],
+                    chunk_index=meta["chunk_index"],
+                    score=1.0 - dist,
+                )
+            )
+
         return hits
+
+    def get_document_chunks(
+        self, document_id: str, max_chars: int = 12000
+    ) -> list[RetrievedChunk]:
+        """Return chunks of one document in reading order, up to max_chars of text."""
+        data = self._collection.get(
+            where={"document_id": document_id},
+            include=["documents", "metadatas"],
+        )
+
+        rows = sorted(
+            zip(data["documents"], data["metadatas"]),
+            key=lambda r: r[1]["chunk_index"],
+        )
+
+        out = []
+        used = 0
+
+        for text, meta in rows:
+            if out and used + len(text) > max_chars:
+                break
+
+            out.append(
+                RetrievedChunk(
+                    text=text,
+                    document_id=meta["document_id"],
+                    filename=meta["filename"],
+                    page_number=meta["page_number"],
+                    chunk_index=meta["chunk_index"],
+                    score=1.0,
+                )
+            )
+
+            used += len(text)
+
+        return out
 
     def delete_document(self, document_id: str) -> None:
         self._collection.delete(where={"document_id": document_id})
 
     def count_for_document(self, document_id: str) -> int:
-        return len(self._collection.get(where={"document_id": document_id}, include=[])["ids"])
+        return len(
+            self._collection.get(
+                where={"document_id": document_id},
+                include=[],
+            )["ids"]
+        )

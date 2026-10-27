@@ -10,7 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from backend.api import documents, health
+from backend.api import chat, documents, health, study
 from backend.config import get_settings
 from backend.database import init_db
 from backend.errors import AppError
@@ -39,6 +39,8 @@ app.add_middleware(
 
 app.include_router(health.router)
 app.include_router(documents.router)
+app.include_router(chat.router)
+app.include_router(study.router)
 
 
 @app.exception_handler(AppError)
