@@ -5,6 +5,10 @@ import Header from './components/Header'
 import ComingSoon from './components/ComingSoon'
 import Dashboard from './pages/Dashboard'
 import Documents from './pages/Documents'
+import StudyMode from './pages/StudyMode'
+import DocumentQA from './pages/DocumentQA'
+import ResearchMode from './pages/ResearchMode'
+import VivaMode from './pages/VivaMode'
 
 export default function App() {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -18,10 +22,10 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/documents" element={<Documents />} />
-            <Route path="/study" element={<ComingSoon title="Study Mode" needs="the Study backend and an API key (Phase 4)" />} />
-            <Route path="/research" element={<ComingSoon title="Research Mode" needs="the Research backend (Phase 4)" />} />
-            <Route path="/viva" element={<ComingSoon title="Viva Mode" needs="the Viva backend (Phase 4)" />} />
-            <Route path="/qa" element={<ComingSoon title="Document Q&A" needs="document retrieval (Phases 3-4)" />} />
+            <Route path="/study" element={<StudyMode />} />
+            <Route path="/research" element={<ResearchMode />} />
+            <Route path="/viva" element={<VivaMode />} />
+            <Route path="/qa" element={<DocumentQA />} />
             <Route path="/evaluation" element={<ComingSoon title="Prompt Evaluation" needs="the evaluation backend (Phase 5)" />} />
             <Route path="/lab" element={<ComingSoon title="Prompt Engineering Lab" needs="the Prompt Lab backend (Phase 5)" />} />
             <Route path="*" element={<ComingSoon title="This page" needs="a valid address" />} />
