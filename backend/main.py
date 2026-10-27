@@ -1,5 +1,5 @@
 """FastAPI entry point. Run from the project root:
-    uvicorn backend.main:app --reload
+    python -m uvicorn backend.main:app --reload
 """
 import logging
 from contextlib import asynccontextmanager
@@ -10,9 +10,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from backend.api import health
+from backend.api import documents, health
 from backend.config import get_settings
 from backend.database import init_db
+from backend.errors import AppError
 from backend.models.schemas import fail
 from backend.services.ai_provider import AIProviderError
 
@@ -37,6 +38,12 @@ app.add_middleware(
 )
 
 app.include_router(health.router)
+app.include_router(documents.router)
+
+
+@app.exception_handler(AppError)
+async def app_error_handler(request: Request, exc: AppError):
+    return JSONResponse(status_code=exc.status_code, content=fail(exc.message))
 
 
 @app.exception_handler(AIProviderError)
@@ -60,5 +67,5 @@ async def http_handler(request: Request, exc: StarletteHTTPException):
 
 @app.exception_handler(Exception)
 async def unexpected_handler(request: Request, exc: Exception):
-    logger.error("Unhandled error: %s", type(exc).__name__)  # type only: no stack, no content
+    logger.error("Unhandled error: %s", type(exc).__name__)
     return JSONResponse(status_code=500, content=fail("Internal server error."))

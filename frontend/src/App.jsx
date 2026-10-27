@@ -4,6 +4,7 @@ import Sidebar from './components/Sidebar'
 import Header from './components/Header'
 import ComingSoon from './components/ComingSoon'
 import Dashboard from './pages/Dashboard'
+import Documents from './pages/Documents'
 
 export default function App() {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -16,7 +17,7 @@ export default function App() {
         <main className="p-4 sm:p-8 max-w-6xl">
           <Routes>
             <Route path="/" element={<Dashboard />} />
-            <Route path="/documents" element={<ComingSoon title="Documents" needs="the document upload backend (Phase 3)" />} />
+            <Route path="/documents" element={<Documents />} />
             <Route path="/study" element={<ComingSoon title="Study Mode" needs="the Study backend and an API key (Phase 4)" />} />
             <Route path="/research" element={<ComingSoon title="Research Mode" needs="the Research backend (Phase 4)" />} />
             <Route path="/viva" element={<ComingSoon title="Viva Mode" needs="the Viva backend (Phase 4)" />} />
